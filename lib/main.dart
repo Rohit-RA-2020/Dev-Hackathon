@@ -1,40 +1,24 @@
-import 'package:dev_hackathon/services/auth.dart';
-import 'package:dev_hackathon/store.dart';
+import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() async {
-  runApp(const MyApp());
+import 'src/app.dart';
+
+final appwriteClientProvider = Provider<Client>((ref) {
+  Client client = Client();
   client
           .setEndpoint('http://10.0.2.2:60/v1') // Your Appwrite Endpoint
           .setProject('62696c26dd5d38446c91') // Your project ID
-          .setSelfSigned(
-              status:
-                  true) // For self signed certificates, only use for development
+          .setSelfSigned() // Use only on dev mode with a self-signed SSL cert
       ;
-}
+  return client;
+});
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+final appwriteAccountProvider = Provider<Account>((ref) {
+  final client = ref.watch(appwriteClientProvider);
+  return Account(client);
+});
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Flutter Demo',
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        Auth().createUser('ranjan@gmail.com', 'hello123', 'Sample User', 'sa');
-      }),
-    );
-  }
+void main() {
+  runApp(const ProviderScope(child: MyApp()));
 }
